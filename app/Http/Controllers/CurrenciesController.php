@@ -20,37 +20,59 @@ class CurrenciesController extends Controller
         ]);
     }
 
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function convertToRub(Request $request)
+    public function convert(Request $request)
     {
-        $priceUsd = $request->priceUsd;
+        $price = $request->price;
+        $from = $request->from;
+        $to = $request->to;
         $data = $this->CBR();
-        $priceRub = round($priceUsd * $data->Valute->USD->Value, 2);
 
+        if($from === "RUB")
+        {
+            $priceConverted = round($price / $data->Valute->$to->Value, 2);
+        }else if($to === "RUB")
+        {
+            $priceConverted = round($price * $data->Valute->$from->Value, 2);
+        }else
+        {
+            $priceConverted = round($price * $data->Valute->$from->Value / $data->Valute->$to->Value, 2);
+        }
         return \response()->json([
-            'result' => $priceRub
+            'result' => $priceConverted,
         ]);
     }
 
-    /**
-     * конвертирует в доллары
-     * @see http://www.cbr.ru
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function convertToUsd(Request $request)
-    {
-        $priceRub = $request->priceRub;
-        $data = $this->CBR();
-        $priceUsd = round($priceRub / $data->Valute->USD->Value, 2);
-
-        return \response()->json([
-            'result' => $priceUsd
-        ]);
-    }
+//    /**
+//     * @param Request $request
+//     * @return \Illuminate\Http\JsonResponse
+//     */
+//    public function convertToRub(Request $request)
+//    {
+//        $priceUsd = $request->priceUsd;
+//        $data = $this->CBR();
+//        $priceRub = round($priceUsd * $data->Valute->USD->Value, 2);
+//
+//        return \response()->json([
+//            'result' => $priceRub
+//        ]);
+//    }
+//
+//    /**
+//     * конвертирует в доллары
+//     * @see http://www.cbr.ru
+//     * @param Request $request
+//     * @return \Illuminate\Http\JsonResponse
+//     */
+//    public function convertToUsd(Request $request)
+//    {
+//        $priceRub = $request->priceRub;
+//        $data = $this->CBR();
+//        $priceUsd = round($priceRub / $data->Valute->USD->Value, 2);
+//
+//        return \response()->json([
+//            'result' => $priceUsd
+//        ]);
+//    }
 
     public function CBR()
     {
