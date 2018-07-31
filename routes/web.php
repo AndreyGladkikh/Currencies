@@ -14,3 +14,8 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('ind', 'CurrenciesController@index');
+
+Route::post('rubToUsd', 'CurrenciesController@convertToUsd');
+Route::post('usdToRub', 'CurrenciesController@convertToRub');
