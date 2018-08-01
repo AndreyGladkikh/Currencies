@@ -1,6 +1,15 @@
 'use strict';
 document.addEventListener('DOMContentLoaded', function(){
 
+    /**
+     * direction - напрвление конвертации - из левого поля в правое или наоборот
+     * from, to - аббревиатуры валют
+     * fromName, toName - id полей
+     * fromField, toField - дескрипторы(?) полей
+     * params - параметры, передаваемые в CurrenciesController@convert
+     *
+     * @param direction
+     */
     var convertCurrency = (direction) => {
         var request = new XMLHttpRequest(),
             csrfToken = document.querySelector('input[name=_token]').value,
@@ -8,10 +17,8 @@ document.addEventListener('DOMContentLoaded', function(){
             to = direction === "leftToRight" ? document.getElementById('rightSelect').value : document.getElementById('leftSelect').value,
             fromName = direction === "leftToRight" ? "leftPrice" : "rightPrice",
             toName = direction === "leftToRight" ? "rightPrice" : "leftPrice",
-            converterUrl = from === "rub" ? "rubToUsd" : "usdToRub",
             fromField = document.getElementById(fromName),
             toField = document.getElementById(toName),
-            p = `${fromName}=${fromField.value}`,
             params = 'price=' + fromField.value + '&from=' + from + '&to=' + to;
 
         request.open('POST' , 'convert');
@@ -26,6 +33,9 @@ document.addEventListener('DOMContentLoaded', function(){
         request.send(params);
     }
 
+    /**
+     * Две аналогичные функции, срабатывают при изменении содержимого левого и правого поля соответственно
+     */
     document.getElementById('leftPrice').oninput = function(){
         convertCurrency('leftToRight');
     }

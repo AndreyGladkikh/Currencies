@@ -14,7 +14,6 @@
                             @endforeach
                                 <option>RUB</option>
                         </select>
-                        <span class="input-group-text">₽</span>
                     </div>
                     <input type="text" id="leftPrice" class="form-control">
                 </div>
@@ -27,7 +26,6 @@
                             @endforeach
                                 <option>RUB</option>
                         </select>
-                        <span class="input-group-text">$</span>
                     </div>
                     <input type="text" id="rightPrice" class="form-control">
                 </div>

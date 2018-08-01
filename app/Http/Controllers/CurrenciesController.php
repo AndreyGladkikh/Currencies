@@ -7,19 +7,27 @@ use Illuminate\Http\Response;
 
 class CurrenciesController extends Controller
 {
+    /**
+     * Возвращает представление главного окна
+     * $valuteProps - массив валют с их свойствами
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function index()
     {
         $data = $this->CBR();
         $valuteProps = get_object_vars($data->Valute);
-//        echo "<pre>";
-//        var_dump($valuteProps);
-//        die();
         return view('currencies', [
-            'data' => $data,
             'valuteProps' => $valuteProps,
         ]);
     }
 
+    /**
+     * Обрабатывает ajax-запрс, возвращает полученную на вход сумму, конвертированную в другую валюту
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function convert(Request $request)
     {
         $price = $request->price;
@@ -42,38 +50,11 @@ class CurrenciesController extends Controller
         ]);
     }
 
-//    /**
-//     * @param Request $request
-//     * @return \Illuminate\Http\JsonResponse
-//     */
-//    public function convertToRub(Request $request)
-//    {
-//        $priceUsd = $request->priceUsd;
-//        $data = $this->CBR();
-//        $priceRub = round($priceUsd * $data->Valute->USD->Value, 2);
-//
-//        return \response()->json([
-//            'result' => $priceRub
-//        ]);
-//    }
-//
-//    /**
-//     * конвертирует в доллары
-//     * @see http://www.cbr.ru
-//     * @param Request $request
-//     * @return \Illuminate\Http\JsonResponse
-//     */
-//    public function convertToUsd(Request $request)
-//    {
-//        $priceRub = $request->priceRub;
-//        $data = $this->CBR();
-//        $priceUsd = round($priceRub / $data->Valute->USD->Value, 2);
-//
-//        return \response()->json([
-//            'result' => $priceUsd
-//        ]);
-//    }
-
+    /**
+     * API ЦБР, используется для получения курса валют
+     *
+     * @return mixed
+     */
     public function CBR()
     {
         $json_daily_file = base_path().'/currencies/daily.json';
