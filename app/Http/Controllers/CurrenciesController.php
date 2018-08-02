@@ -15,7 +15,8 @@ class CurrenciesController extends Controller
      */
     public function index()
     {
-        $data = $this->CBR();
+        $this->updateCurrencies();
+        $data = $this->getAllCurrencies();
         $valuteProps = get_object_vars($data->Valute);
         return view('currencies', [
             'valuteProps' => $valuteProps,
@@ -33,29 +34,16 @@ class CurrenciesController extends Controller
         $price = $request->price;
         $from = $request->from;
         $to = $request->to;
-        $data = $this->CBR();
 
-        if($from === "RUB")
-        {
-            $priceConverted = round($price / $data->Valute->$to->Value, 2);
-        }else if($to === "RUB")
-        {
-            $priceConverted = round($price * $data->Valute->$from->Value, 2);
-        }else
-        {
-            $priceConverted = round($price * $data->Valute->$from->Value / $data->Valute->$to->Value, 2);
-        }
         return \response()->json([
-            'result' => $priceConverted,
+            'result' => $this->getConvertedPrice($price, $this->getCurrencyById($from), $this->getCurrencyById($to)),
         ]);
     }
 
     /**
      * API ЦБР, используется для получения курса валют
-     *
-     * @return mixed
      */
-    public function CBR()
+    public function updateCurrencies()
     {
         $json_daily_file = base_path().'/currencies/daily.json';
         if (!is_file($json_daily_file) || filemtime($json_daily_file) < time() - 3600) {
@@ -63,7 +51,41 @@ class CurrenciesController extends Controller
                 file_put_contents($json_daily_file, $json_daily);
             }
         }
+    }
 
-        return json_decode(file_get_contents($json_daily_file));
+    /**
+     * Возвращает параметры валют
+     *
+     * @return mixed
+     */
+    public function getAllCurrencies()
+    {
+        return json_decode(file_get_contents(base_path().'/currencies/daily.json'));
+    }
+
+    /**
+     * Возвращает стоимость валюты в рублях
+     *
+     * @param $id
+     * @return int
+     */
+    public function getCurrencyById($id)
+    {
+        $this->updateCurrencies();
+        $data = $this->getAllCurrencies();
+        return ($id !== "RUB") ? $data->Valute->$id->Value : 1;
+    }
+
+    /**
+     * Возвращает конвертированную сумму
+     *
+     * @param $price
+     * @param $from
+     * @param $to
+     * @return float
+     */
+    public function getConvertedPrice($price, $from, $to)
+    {
+        return round($price * $from / $to, 2);
     }
 }

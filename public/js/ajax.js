@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function(){
      * direction - напрвление конвертации - из левого поля в правое или наоборот
      * from, to - аббревиатуры валют
      * fromName, toName - id полей
-     * fromField, toField - дескрипторы(?) полей
+     * fromField, toField - дескрипторы полей
      * params - параметры, передаваемые в CurrenciesController@convert
      *
      * @param direction
@@ -33,14 +33,22 @@ document.addEventListener('DOMContentLoaded', function(){
         request.send(params);
     }
 
+    //var myConverter = new Converter();
+
     /**
      * Две аналогичные функции, срабатывают при изменении содержимого левого и правого поля соответственно
      */
     document.getElementById('leftPrice').oninput = function(){
         convertCurrency('leftToRight');
+        // myConverter.setFromValute('leftToRight');
+        // myConverter.setToValute('leftToRight');
+        // myConverter.getConvertResult();
     }
 
     document.getElementById('rightPrice').oninput = function(){
         convertCurrency('rightToLeft');
+        // myConverter.setFromValute('rightToLeft');
+        // myConverter.setToValute('rightToLeft');
+        // myConverter.getConvertResult();
     }
 });

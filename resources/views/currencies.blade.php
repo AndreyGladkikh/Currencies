@@ -33,6 +33,7 @@
 
         </form>
     </div>
+    <script src="{{URL::asset('js/Converter.js')}}"></script>
     <script src="{{URL::asset('js/ajax.js')}}"></script>
 @endsection
 
