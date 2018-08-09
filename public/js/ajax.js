@@ -27,12 +27,26 @@ document.addEventListener('DOMContentLoaded', function(){
             .setToCurrencyId(toCurrencyId);
     };
 
+    let showNewOperation = (converterParams) => {
+        let parentElem = document.getElementById('tableBody');
+        let newTr = document.createElement('tr');
+        newTr.className = 'table-active';
+        newTr.innerHTML = `<td>${converterParams.fromCurrencyId}</td>
+                            <td>${converterParams.price}</td>
+                            <td>${converterParams.toCurrencyId}</td>
+                            <td>${converterParams.convertedPrice}</td>`;
+        parentElem.insertBefore(newTr, parentElem.firstChild);
+        if(parentElem.childNodes.length > 5){
+            parentElem.removeChild(parentElem.lastChild);
+        }
+    };
 
     class Converter {
         constructor(converterUrl, token) {
             this.converterUrl = converterUrl;
             this.token = token;
             this.price = null;
+            this.convertedPrice = null;
             this.fromCurrencyId = '';
             this.toCurrencyId = '';
             this.resultField = '';
@@ -49,9 +63,21 @@ document.addEventListener('DOMContentLoaded', function(){
             this.price = price;
             return this;
         }
+        setConvertedPrice(convertedPrice){
+            this.convertedPrice = convertedPrice;
+            return this;
+        }
         setResultField(resultField) {
             this.resultField = resultField;
             return this;
+        }
+        getConverterParams(){
+            return {
+                price: this.price,
+                convertedPrice: this.convertedPrice,
+                fromCurrencyId: this.fromCurrencyId,
+                toCurrencyId: this.toCurrencyId
+            };
         }
 
         /**
@@ -75,6 +101,8 @@ document.addEventListener('DOMContentLoaded', function(){
         handleResponse(response) {
             if (response.status === 200) {
                 document.getElementById(this.resultField).value = response.result;
+                this.setConvertedPrice(response.result);
+                showNewOperation(this.getConverterParams());
                 return true;
             }
             this.handleError(response);
@@ -84,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function(){
         }
 
         /**
-         * Проверяет наличие необходимых параметров
+         * Конвертирует
          */
         convert() {
             this.price && this.fromCurrencyId && this.toCurrencyId && this.resultField &&
@@ -111,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function(){
     );
 
     /**
-     * Функция срабатывают при изменении содержимого левого поля
+     * Обработчик изменения содержимого левого поля
      * price - введенная сумма
      *
      * @param event
@@ -124,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function(){
     };
 
     /**
-     * Функция срабатывают при изменении содержимого правого поля
+     * Обработчик изменения содержимого правого поля
      *
      * @param event
      */

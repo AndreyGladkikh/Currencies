@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Transaction;
+use App\Operation;
 use Validator;
 
 class CurrenciesController extends Controller
@@ -21,10 +22,11 @@ class CurrenciesController extends Controller
     {
         $data = $this->getAllCurrencies();
         $valuteProps = get_object_vars($data->Valute);
-        $transactions = Transaction::orderBy('created_at', 'desc')->limit(5)->get();
+        //$transactions = Transaction::orderBy('created_at', 'desc')->limit(5)->get();
+        $operations = Operation::orderBy('created_at', 'desc')->limit(10)->get();
         return view('currencies', [
             'valuteProps' => $valuteProps,
-            'transactions' => $transactions
+            'operations' => $operations
         ]);
     }
 
@@ -36,8 +38,11 @@ class CurrenciesController extends Controller
      */
     public function convert(Request $request)
     {
-        $priceValidator = Validator::make($request->all(),
-            [ 'price' => 'required|digits_between:0, 8' ]
+        $priceValidator = Validator::make($request->all(), [
+            'price' => 'required|digits_between:0, 8',
+                'from' => 'required',
+                'to' => 'required'
+            ]
         );
         if ($priceValidator->fails()) {
             return \response()->json([
@@ -55,7 +60,7 @@ class CurrenciesController extends Controller
             $this->getCurrencyById($from),
             $this->getCurrencyById($to));
 
-        Transaction::create([
+        Operation::create([
             'from_currency_id' => $from,
             'from_price' => $price,
             'to_currency_id' => $to,

@@ -34,23 +34,27 @@
         </form>
     </div>
 
-    @if(isset($transactions))
+    <div class="alert alert-secondary text-center" role="alert">
+        История операций
+    </div>
+
+    @if(isset($operations))
         <table class="table">
             <thead>
-            <tr>
+            <tr class="table-active">
                 <th scope="col">From</th>
                 <th scope="col">Price</th>
                 <th scope="col">To</th>
                 <th scope="col">Price</th>
             </tr>
             </thead>
-            <tbody>
-            @foreach($transactions as $transaction)
-                <tr>
-                    <td>{{ $transaction->from_currency_id }}</td>
-                    <td>{{ $transaction->from_price }}</td>
-                    <td>{{ $transaction->to_currency_id }}</td>
-                    <td>{{ $transaction->to_price }}</td>
+            <tbody id="tableBody">
+            @foreach($operations as $operation)
+                <tr class="table-active">
+                    <td>{{ $operation->from_currency_id }}</td>
+                    <td>{{ $operation->from_price }}</td>
+                    <td>{{ $operation->to_currency_id }}</td>
+                    <td>{{ $operation->to_price }}</td>
                 </tr>
             @endforeach
             </tbody>
