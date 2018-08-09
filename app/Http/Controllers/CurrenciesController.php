@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Validator;
 
 class CurrenciesController extends Controller
 {
+    const STATUS_OK = 200;
+    const STATUS_ERROR = 400;
     /**
      * Возвращает представление главного окна
      * $valuteProps - массив валют с их свойствами
@@ -15,7 +18,6 @@ class CurrenciesController extends Controller
      */
     public function index()
     {
-        $this->updateCurrencies();
         $data = $this->getAllCurrencies();
         $valuteProps = get_object_vars($data->Valute);
         return view('currencies', [
@@ -31,13 +33,27 @@ class CurrenciesController extends Controller
      */
     public function convert(Request $request)
     {
-        $price = $request->price;
-        $from = $request->from;
-        $to = $request->to;
+        $priceValidator = Validator::make($request->all(),
+            [ 'price' => 'required|digits_between:0, 8' ]
+        );
+        if ($priceValidator->fails()) {
+            return \response()->json([
+                'status' => self::STATUS_ERROR,
+                'message' => 'Некорректные данные',
+            ], self::STATUS_ERROR);
+        }
+
+        $price = (int)$request->price;
+        $from = (string)$request->from;
+        $to = (string)$request->to;
 
         return \response()->json([
-            'result' => $this->getConvertedPrice($price, $this->getCurrencyById($from), $this->getCurrencyById($to)),
-        ]);
+            'status' => self::STATUS_OK,
+            'result' => $this->getConvertedPrice(
+                $price,
+                $this->getCurrencyById($from),
+                $this->getCurrencyById($to)),
+        ], self::STATUS_OK);
     }
 
     /**
@@ -46,10 +62,8 @@ class CurrenciesController extends Controller
     public function updateCurrencies()
     {
         $json_daily_file = base_path().'/currencies/daily.json';
-        if (!is_file($json_daily_file) || filemtime($json_daily_file) < time() - 3600) {
-            if ($json_daily = file_get_contents('https://www.cbr-xml-daily.ru/daily_json.js')) {
-                file_put_contents($json_daily_file, $json_daily);
-            }
+        if ($json_daily = file_get_contents('https://www.cbr-xml-daily.ru/daily_json.js')) {
+            file_put_contents($json_daily_file, $json_daily);
         }
     }
 
@@ -60,6 +74,10 @@ class CurrenciesController extends Controller
      */
     public function getAllCurrencies()
     {
+        $json_daily_file = base_path().'/currencies/daily.json';
+        if (!is_file($json_daily_file) || filemtime($json_daily_file) < time() - 3600) {
+            $this->updateCurrencies();
+        }
         return json_decode(file_get_contents(base_path().'/currencies/daily.json'));
     }
 
@@ -71,7 +89,6 @@ class CurrenciesController extends Controller
      */
     public function getCurrencyById($id)
     {
-        $this->updateCurrencies();
         $data = $this->getAllCurrencies();
         return ($id !== "RUB") ? $data->Valute->$id->Value : 1;
     }

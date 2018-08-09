@@ -9,8 +9,8 @@
                 <div class="input-group mb-3 col-sm-5">
                     <div class="input-group-prepend">
                         <select id="leftSelect" class="btn btn-outline-secondary dropdown-toggle">
-                            @foreach($valuteProps as $v)
-                                <option>{{ $v->CharCode }}</option>
+                            @foreach($valuteProps as $id => $v)
+                                <option>{{ $id }}</option>
                             @endforeach
                                 <option>RUB</option>
                         </select>
@@ -21,8 +21,8 @@
                 <div class="input-group mb-3 col-sm-5">
                     <div class="input-group-prepend">
                         <select id="rightSelect" class="btn btn-outline-secondary dropdown-toggle">
-                            @foreach($valuteProps as $v)
-                                <option>{{ $v->CharCode }}</option>
+                            @foreach($valuteProps as $id => $v)
+                                <option>{{ $id }}</option>
                             @endforeach
                                 <option>RUB</option>
                         </select>
@@ -33,7 +33,11 @@
 
         </form>
     </div>
-    <script src="{{URL::asset('js/Converter.js')}}"></script>
+
+
+hello
+
+
     <script src="{{URL::asset('js/ajax.js')}}"></script>
 @endsection
 

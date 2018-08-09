@@ -10,6 +10,5 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+Route::post('/convert', 'CurrenciesController@convert');
 Route::get('/', 'CurrenciesController@index');
-Route::post('convert', 'CurrenciesController@convert');

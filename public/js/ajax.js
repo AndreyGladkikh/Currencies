@@ -1,54 +1,134 @@
 'use strict';
+
 document.addEventListener('DOMContentLoaded', function(){
+    let fromCurrencyId = '',
+        toCurrencyId = '',
+        price = null,
+        converter = null,
+        token = document.querySelector('input[name=_token]').value;
 
     /**
-     * direction - напрвление конвертации - из левого поля в правое или наоборот
-     * from, to - аббревиатуры валют
-     * fromName, toName - id полей
-     * fromField, toField - дескрипторы полей
-     * params - параметры, передаваемые в CurrenciesController@convert
+     * Устанавливает из какой в какую валюты будет происходить конвертация
      *
-     * @param direction
+     * @param fromFieldId
+     * @param toFieldId
      */
-    var convertCurrency = (direction) => {
-        var request = new XMLHttpRequest(),
-            csrfToken = document.querySelector('input[name=_token]').value,
-            from = direction === "leftToRight" ? document.getElementById('leftSelect').value : document.getElementById('rightSelect').value,
-            to = direction === "leftToRight" ? document.getElementById('rightSelect').value : document.getElementById('leftSelect').value,
-            fromName = direction === "leftToRight" ? "leftPrice" : "rightPrice",
-            toName = direction === "leftToRight" ? "rightPrice" : "leftPrice",
-            fromField = document.getElementById(fromName),
-            toField = document.getElementById(toName),
-            params = 'price=' + fromField.value + '&from=' + from + '&to=' + to;
-
-        request.open('POST' , 'convert');
-        request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        request.setRequestHeader('X-CSRF-TOKEN', csrfToken);
-        request.onreadystatechange = function() {
-            if(request.readyState === XMLHttpRequest.DONE && request.status === 200){
-                var responseObject = JSON.parse(request.response);
-                toField.value = responseObject.result;
-            }
-        }
-        request.send(params);
-    }
-
-    //var myConverter = new Converter();
+    let setCurrencyIds = (fromFieldId, toFieldId) => {
+        fromCurrencyId = document.getElementById(fromFieldId).value;
+        toCurrencyId = document.getElementById(toFieldId).value;
+    };
 
     /**
-     * Две аналогичные функции, срабатывают при изменении содержимого левого и правого поля соответственно
+     * Задает параметры, передаваемые в запросе
      */
-    document.getElementById('leftPrice').oninput = function(){
-        convertCurrency('leftToRight');
-        // myConverter.setFromValute('leftToRight');
-        // myConverter.setToValute('leftToRight');
-        // myConverter.getConvertResult();
+    let setConverterParams = () => {
+        converter.setPrice(price)
+            .setFromCurrencyId(fromCurrencyId)
+            .setToCurrencyId(toCurrencyId);
+    };
+
+
+    class Converter {
+        constructor(converterUrl, token) {
+            this.converterUrl = converterUrl;
+            this.token = token;
+            this.price = null;
+            this.fromCurrencyId = '';
+            this.toCurrencyId = '';
+            this.resultField = '';
+        }
+        setFromCurrencyId(fromCurrencyId) {
+            this.fromCurrencyId = fromCurrencyId;
+            return this;
+        }
+        setToCurrencyId(toCurrencyId) {
+            this.toCurrencyId = toCurrencyId;
+            return this;
+        }
+        setPrice(price) {
+            this.price = price;
+            return this;
+        }
+        setResultField(resultField) {
+            this.resultField = resultField;
+            return this;
+        }
+
+        /**
+         * Заголовки, передаваемые в запросе
+         *
+         * @returns {{Content-Type: string, X-CSRF-TOKEN: *}}
+         */
+        getDefaultHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': this.token
+            };
+        }
+
+        /**
+         * Обработчик ответа
+         *
+         * @param response
+         * @returns {boolean}
+         */
+        handleResponse(response) {
+            if (response.status === 200) {
+                document.getElementById(this.resultField).value = response.result;
+                return true;
+            }
+            this.handleError(response);
+        }
+        handleError(error) {
+            console.warn(error.message);
+        }
+        convert() {
+            this.price && this.fromCurrencyId && this.toCurrencyId && this.resultField &&
+                this.sendRequest();
+        }
+        sendRequest() {
+            let data = JSON.stringify({
+                'price': this.price,
+                'from': this.fromCurrencyId,
+                'to': this.toCurrencyId
+            });
+            fetch(this.converterUrl, {
+                method: 'POST',
+                headers: this.getDefaultHeaders(),
+                body: data
+            }).then((response) => response.json())
+                .then((response) => this.handleResponse(response));
+        }
     }
 
-    document.getElementById('rightPrice').oninput = function(){
-        convertCurrency('rightToLeft');
-        // myConverter.setFromValute('rightToLeft');
-        // myConverter.setToValute('rightToLeft');
-        // myConverter.getConvertResult();
-    }
+    converter = new Converter(
+        '/convert',
+        token
+    );
+
+    /**
+     * Функция срабатывают при изменении содержимого левого поля
+     * price - введенная сумма
+     *
+     * @param event
+     */
+    document.getElementById('leftPrice').onchange = function(event){
+        price = event.target.value;
+        setCurrencyIds('leftSelect', 'rightSelect');
+        setConverterParams();
+        converter.setResultField('rightPrice').convert();
+    };
+
+    /**
+     * Функция срабатывают при изменении содержимого правого поля
+     *
+     * @param event
+     */
+    document.getElementById('rightPrice').onchange = function(event){
+        price = event.target.value;
+        setCurrencyIds('rightSelect', 'leftSelect');
+        setConverterParams();
+        converter.setResultField('leftPrice').convert();
+    };
+
 });
