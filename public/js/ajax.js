@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function(){
         token = document.querySelector('input[name=_token]').value;
 
     /**
-     * Устанавливает из какой в какую валюты будет происходить конвертация
+     * Устанавливает из какой в какую валюту будет происходить конвертация
      *
      * @param fromFieldId
      * @param toFieldId
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function(){
     };
 
     /**
-     * Задает параметры, передаваемые в запросе
+     * Задает параметры конвертера
      */
     let setConverterParams = () => {
         converter.setPrice(price)
@@ -82,6 +82,10 @@ document.addEventListener('DOMContentLoaded', function(){
         handleError(error) {
             console.warn(error.message);
         }
+
+        /**
+         * Проверяет наличие необходимых параметров
+         */
         convert() {
             this.price && this.fromCurrencyId && this.toCurrencyId && this.resultField &&
                 this.sendRequest();

@@ -34,9 +34,28 @@
         </form>
     </div>
 
-
-hello
-
+    @if(isset($transactions))
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">From</th>
+                <th scope="col">Price</th>
+                <th scope="col">To</th>
+                <th scope="col">Price</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach($transactions as $transaction)
+                <tr>
+                    <td>{{ $transaction->from_currency_id }}</td>
+                    <td>{{ $transaction->from_price }}</td>
+                    <td>{{ $transaction->to_currency_id }}</td>
+                    <td>{{ $transaction->to_price }}</td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    @endif
 
     <script src="{{URL::asset('js/ajax.js')}}"></script>
 @endsection

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Transaction;
 use Validator;
 
 class CurrenciesController extends Controller
@@ -20,8 +21,10 @@ class CurrenciesController extends Controller
     {
         $data = $this->getAllCurrencies();
         $valuteProps = get_object_vars($data->Valute);
+        $transactions = Transaction::orderBy('created_at', 'desc')->limit(5)->get();
         return view('currencies', [
             'valuteProps' => $valuteProps,
+            'transactions' => $transactions
         ]);
     }
 
@@ -47,12 +50,21 @@ class CurrenciesController extends Controller
         $from = (string)$request->from;
         $to = (string)$request->to;
 
+        $priceConverted = $this->getConvertedPrice(
+            $price,
+            $this->getCurrencyById($from),
+            $this->getCurrencyById($to));
+
+        Transaction::create([
+            'from_currency_id' => $from,
+            'from_price' => $price,
+            'to_currency_id' => $to,
+            'to_price' => $priceConverted
+        ]);
+
         return \response()->json([
             'status' => self::STATUS_OK,
-            'result' => $this->getConvertedPrice(
-                $price,
-                $this->getCurrencyById($from),
-                $this->getCurrencyById($to)),
+            'result' => $priceConverted,
         ], self::STATUS_OK);
     }
 
