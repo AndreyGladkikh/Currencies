@@ -61,7 +61,7 @@
         </table>
     @endif
 
-    <script src="{{URL::asset('js/ajax.js')}}"></script>
+    <script src="{{URL::asset('js/currencies.js')}}"></script>
 @endsection
 
 

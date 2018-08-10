@@ -12,18 +12,15 @@ class CurrenciesController extends Controller
 {
     const STATUS_OK = 200;
     const STATUS_ERROR = 400;
+
     /**
-     * Возвращает представление главного окна
-     * $valuteProps - массив валют с их свойствами
-     *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()
     {
         $data = $this->getAllCurrencies();
         $valuteProps = get_object_vars($data->Valute);
-        //$transactions = Transaction::orderBy('created_at', 'desc')->limit(5)->get();
-        $operations = Operation::orderBy('created_at', 'desc')->limit(10)->get();
+        $operations = Operation::orderBy('created_at', 'desc')->limit(5)->get();
         return view('currencies', [
             'valuteProps' => $valuteProps,
             'operations' => $operations
@@ -74,7 +71,7 @@ class CurrenciesController extends Controller
     }
 
     /**
-     * API ЦБР, используется для получения курса валют
+     * Запрашивает курсы валют в api цбр
      */
     public function updateCurrencies()
     {
@@ -85,9 +82,9 @@ class CurrenciesController extends Controller
     }
 
     /**
-     * Возвращает параметры валют
+     * Возвращает курсы валют текущего часа
      *
-     * @return mixed
+     * @return string
      */
     public function getAllCurrencies()
     {

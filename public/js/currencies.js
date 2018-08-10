@@ -36,8 +36,9 @@ document.addEventListener('DOMContentLoaded', function(){
                             <td>${converterParams.toCurrencyId}</td>
                             <td>${converterParams.convertedPrice}</td>`;
         parentElem.insertBefore(newTr, parentElem.firstChild);
-        if(parentElem.childNodes.length > 5){
-            parentElem.removeChild(parentElem.lastChild);
+        if(parentElem.getElementsByTagName('tr').length > 5){
+            //parentElem.removeChild(parentElem.lastChild);
+            parentElem.lastChild.style.display = 'none';
         }
     };
 
