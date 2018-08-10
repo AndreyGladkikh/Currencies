@@ -39,7 +39,7 @@
     </div>
 
     @if(isset($operations))
-        <table class="table">
+        <table class="table" id="lastOperations">
             <thead>
             <tr class="table-active">
                 <th scope="col">From</th>

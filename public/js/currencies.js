@@ -37,7 +37,8 @@ document.addEventListener('DOMContentLoaded', function(){
                             <td>${converterParams.convertedPrice}</td>`;
         parentElem.insertBefore(newTr, parentElem.firstChild);
         if(parentElem.getElementsByTagName('tr').length > 5){
-            parentElem.getElementsByTagName('tr').item(5).style.display = 'none';
+            //parentElem.getElementsByTagName('tr').item(5).style.display = 'none';
+            document.querySelector('#tableBody > tr:nth-child(6)').style.display = 'none';
         }
     };
 
