@@ -37,8 +37,7 @@ document.addEventListener('DOMContentLoaded', function(){
                             <td>${converterParams.convertedPrice}</td>`;
         parentElem.insertBefore(newTr, parentElem.firstChild);
         if(parentElem.getElementsByTagName('tr').length > 5){
-            //parentElem.removeChild(parentElem.lastChild);
-            parentElem.lastChild.style.display = 'none';
+            parentElem.getElementsByTagName('tr').item(5).style.display = 'none';
         }
     };
 
