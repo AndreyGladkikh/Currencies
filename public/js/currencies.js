@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function(){
      *
      * @param event
      */
-    document.getElementById('leftPrice').onchange = function(event){
+    document.getElementById('leftPrice').onchange = (event) => {
         price = event.target.value;
         setCurrencyIds('leftSelect', 'rightSelect');
         setConverterParams();
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function(){
      *
      * @param event
      */
-    document.getElementById('rightPrice').onchange = function(event){
+    document.getElementById('rightPrice').onchange = (event) =>{
         price = event.target.value;
         setCurrencyIds('rightSelect', 'leftSelect');
         setConverterParams();

@@ -21,10 +21,11 @@ class CurrenciesController extends Controller
         $data = $this->getAllCurrencies();
         $valuteProps = get_object_vars($data->Valute);
         $operations = Operation::orderBy('created_at', 'desc')->limit(5)->get();
-        return view('currencies', [
-            'valuteProps' => $valuteProps,
-            'operations' => $operations
-        ]);
+//        return view('currencies', [
+//            'valuteProps' => $valuteProps,
+//            'operations' => $operations
+//        ]);
+        return view('currencies', compact('valuteProps', 'operations'));
     }
 
     /**
@@ -73,7 +74,7 @@ class CurrenciesController extends Controller
     /**
      * Запрашивает курсы валют в api цбр
      */
-    public function updateCurrencies()
+    private function updateCurrencies()
     {
         $json_daily_file = base_path().'/currencies/daily.json';
         if ($json_daily = file_get_contents('https://www.cbr-xml-daily.ru/daily_json.js')) {
@@ -86,7 +87,7 @@ class CurrenciesController extends Controller
      *
      * @return string
      */
-    public function getAllCurrencies()
+    private function getAllCurrencies()
     {
         $json_daily_file = base_path().'/currencies/daily.json';
         if (!is_file($json_daily_file) || filemtime($json_daily_file) < time() - 3600) {
@@ -101,7 +102,7 @@ class CurrenciesController extends Controller
      * @param $id
      * @return int
      */
-    public function getCurrencyById($id)
+    private function getCurrencyById($id)
     {
         $data = $this->getAllCurrencies();
         return ($id !== "RUB") ? $data->Valute->$id->Value : 1;
@@ -115,7 +116,7 @@ class CurrenciesController extends Controller
      * @param $to
      * @return float
      */
-    public function getConvertedPrice($price, $from, $to)
+    private function getConvertedPrice($price, $from, $to)
     {
         return round($price * $from / $to, 2);
     }
