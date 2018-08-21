@@ -37,15 +37,15 @@ class CurrenciesController extends Controller
     public function convert(Request $request)
     {
         $priceValidator = Validator::make($request->all(), [
-            'price' => 'required|digits_between:0, 8',
+            'price' => 'required|digits_between:0, 10',
                 'from' => 'required',
                 'to' => 'required'
             ]
         );
         if ($priceValidator->fails()) {
-            return \response()->json([
+            return response()->json([
                 'status' => self::STATUS_ERROR,
-                'message' => 'Некорректные данные',
+                'message' => 'Поле должно содержать не более 10 цифр',
             ], self::STATUS_ERROR);
         }
 
@@ -65,7 +65,7 @@ class CurrenciesController extends Controller
             'to_price' => $priceConverted
         ]);
 
-        return \response()->json([
+        return response()->json([
             'status' => self::STATUS_OK,
             'result' => $priceConverted,
         ], self::STATUS_OK);

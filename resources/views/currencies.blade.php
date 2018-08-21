@@ -32,6 +32,8 @@
             </div>
 
         </form>
+        <div ></div>
+        <div id="errors"></div>
     </div>
 
     <div class="alert alert-secondary text-center" role="alert">

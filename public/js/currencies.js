@@ -108,7 +108,9 @@ document.addEventListener('DOMContentLoaded', function(){
             this.handleError(response);
         }
         handleError(error) {
-            console.warn(error.message);
+            let errorsElem = document.getElementById('errors');
+            errorsElem.className = 'alert alert-danger text-center';
+            errorsElem.innerHTML = error.message;
         }
 
         /**
