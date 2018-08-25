@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers;
 
+require_once(base_path().'/currencies/helpers/Currencies.php');
+require_once(base_path().'/currencies/helpers/CurrencyConverter.php');
+
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Transaction;
 use App\Operation;
 use Validator;
+use App\Http\Requests\ConvertCurrencyRequest;
+use Currencies\Helpers\CurrencyConverter;
+use Currencies\Helpers\Currencies;
 
 class CurrenciesController extends Controller
 {
@@ -18,13 +24,15 @@ class CurrenciesController extends Controller
      */
     public function index()
     {
-        $data = $this->getAllCurrencies();
-        $valuteProps = get_object_vars($data->Valute);
+//        $data = $this->getAllCurrencies();
+//        $valuteProps = get_object_vars($data->Valute);
+//        $operations = Operation::orderBy('created_at', 'desc')->limit(5)->get();
+
+        $currencies = new Currencies();
+        $converter = new CurrencyConverter($currencies);
+        $valuteProps = $converter->getValuteProps();
         $operations = Operation::orderBy('created_at', 'desc')->limit(5)->get();
-//        return view('currencies', [
-//            'valuteProps' => $valuteProps,
-//            'operations' => $operations
-//        ]);
+
         return view('currencies', compact('valuteProps', 'operations'));
     }
 
@@ -34,29 +42,46 @@ class CurrenciesController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function convert(Request $request)
+    public function convert(ConvertCurrencyRequest $request)
     {
-        $priceValidator = Validator::make($request->all(), [
-            'price' => 'required|digits_between:0, 10',
-                'from' => 'required',
-                'to' => 'required'
-            ]
-        );
-        if ($priceValidator->fails()) {
-            return response()->json([
-                'status' => self::STATUS_ERROR,
-                'message' => 'Поле должно содержать не более 10 цифр',
-            ], self::STATUS_ERROR);
-        }
+//        $priceValidator = Validator::make($request->all(), [
+//            'price' => 'required|digits_between:0, 10',
+//                'from' => 'required',
+//                'to' => 'required'
+//            ]
+//        );
+
+//        if ($priceValidator->fails()) {
+//            return response()->json([
+//                'status' => self::STATUS_ERROR,
+//                'message' => 'Поле должно содержать не более 10 цифр',
+//            ], self::STATUS_ERROR);
+//        }
 
         $price = (int)$request->price;
         $from = (string)$request->from;
         $to = (string)$request->to;
 
-        $priceConverted = $this->getConvertedPrice(
+//        $priceConverted = $this->getConvertedPrice(
+//            $price,
+//            $this->getCurrencyById($from),
+//            $this->getCurrencyById($to));
+//
+//        Operation::create([
+//            'from_currency_id' => $from,
+//            'from_price' => $price,
+//            'to_currency_id' => $to,
+//            'to_price' => $priceConverted
+//        ]);
+
+
+        $currencies = new Currencies();
+        $converter = new CurrencyConverter($currencies);
+        $priceConverted = $converter->getConvertedPrice(
             $price,
-            $this->getCurrencyById($from),
-            $this->getCurrencyById($to));
+            $currencies->getCurrencyById($from),
+            $currencies->getCurrencyById($to)
+        );
 
         Operation::create([
             'from_currency_id' => $from,
@@ -74,27 +99,27 @@ class CurrenciesController extends Controller
     /**
      * Запрашивает курсы валют в api цбр
      */
-    private function updateCurrencies()
-    {
-        $json_daily_file = base_path().'/currencies/daily.json';
-        if ($json_daily = file_get_contents('https://www.cbr-xml-daily.ru/daily_json.js')) {
-            file_put_contents($json_daily_file, $json_daily);
-        }
-    }
+//    private function updateCurrencies()
+//    {
+//        $json_daily_file = base_path().'/currencies/daily.json';
+//        if ($json_daily = file_get_contents('https://www.cbr-xml-daily.ru/daily_json.js')) {
+//            file_put_contents($json_daily_file, $json_daily);
+//        }
+//    }
 
     /**
      * Возвращает курсы валют текущего часа
      *
      * @return string
      */
-    private function getAllCurrencies()
-    {
-        $json_daily_file = base_path().'/currencies/daily.json';
-        if (!is_file($json_daily_file) || filemtime($json_daily_file) < time() - 3600) {
-            $this->updateCurrencies();
-        }
-        return json_decode(file_get_contents(base_path().'/currencies/daily.json'));
-    }
+//    private function getAllCurrencies()
+//    {
+//        $json_daily_file = base_path().'/currencies/daily.json';
+//        if (!is_file($json_daily_file) || filemtime($json_daily_file) < time() - 3600) {
+//            $this->updateCurrencies();
+//        }
+//        return json_decode(file_get_contents(base_path().'/currencies/daily.json'));
+//    }
 
     /**
      * Возвращает стоимость валюты в рублях
@@ -102,11 +127,11 @@ class CurrenciesController extends Controller
      * @param $id
      * @return int
      */
-    private function getCurrencyById($id)
-    {
-        $data = $this->getAllCurrencies();
-        return ($id !== "RUB") ? $data->Valute->$id->Value : 1;
-    }
+//    private function getCurrencyById($id)
+//    {
+//        $data = $this->getAllCurrencies();
+//        return ($id !== "RUB") ? $data->Valute->$id->Value : 1;
+//    }
 
     /**
      * Возвращает конвертированную сумму
@@ -116,8 +141,8 @@ class CurrenciesController extends Controller
      * @param $to
      * @return float
      */
-    private function getConvertedPrice($price, $from, $to)
-    {
-        return round($price * $from / $to, 2);
-    }
+//    private function getConvertedPrice($price, $from, $to)
+//    {
+//        return round($price * $from / $to, 2);
+//    }
 }

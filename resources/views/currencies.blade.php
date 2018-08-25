@@ -32,7 +32,7 @@
             </div>
 
         </form>
-        <div ></div>
+        {{--{{ var_dump($errors) }}--}}
         <div id="errors"></div>
     </div>
 
